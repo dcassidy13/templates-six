@@ -121,8 +121,13 @@
                                     <a href="#configoptions" data-toggle="tab"><i class="fas fa-cubes fa-fw"></i> {$LANG.orderconfigpackage}</a>
                                 </li>
                             {/if}
-                            {if $customfields}
+                            {if $metricStats}
                                 <li{if !$domain && !$moduleclientarea && !$configurableoptions} class="active"{/if}>
+                                    <a href="#metrics" data-toggle="tab"><i class="fas fa-chart-line fa-fw"></i> {$LANG.metrics.title}</a>
+                                </li>
+                            {/if}
+                            {if $customfields}
+                                <li{if !$domain && !$moduleclientarea && !$metricStats && !$configurableoptions} class="active"{/if}>
                                     <a href="#additionalinfo" data-toggle="tab"><i class="fas fa-info fa-fw"></i> {$LANG.additionalInfo}</a>
                                 </li>
                             {/if}
@@ -236,32 +241,51 @@
                                             <strong>{$LANG.sslState.sslStatus}</strong>
                                         </div>
                                         <div class="col-sm-7 text-left{if $sslStatus->isInactive()} ssl-inactive{/if}">
-                                            <img src="{$sslStatus->getImagePath()}" width="12"> {$sslStatus->getStatusDisplayLabel()}
+                                            <img src="{$sslStatus->getImagePath()}" width="12" data-type="service" data-domain="{$domain}" data-showlabel="1" class="{$sslStatus->getClass()}"/>
+                                            <span id="statusDisplayLabel">
+                                                {if !$sslStatus->needsResync()}
+                                                    {$sslStatus->getStatusDisplayLabel()}
+                                                {else}
+                                                    {$LANG.loading}
+                                                {/if}
+                                            </span>
                                         </div>
                                     </div>
-                                    {if $sslStatus->isActive()}
+                                    {if $sslStatus->isActive() || $sslStatus->needsResync()}
                                         <div class="row">
                                             <div class="col-sm-5 text-right">
                                                 <strong>{$LANG.sslState.startDate}</strong>
                                             </div>
-                                            <div class="col-sm-7 text-left">
-                                                {$sslStatus->startDate->toClientDateFormat()}
+                                            <div class="col-sm-7 text-left" id="ssl-startdate">
+                                                {if !$sslStatus->needsResync() || $sslStatus->startDate}
+                                                    {$sslStatus->startDate->toClientDateFormat()}
+                                                {else}
+                                                    {$LANG.loading}
+                                                {/if}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-5 text-right">
                                                 <strong>{$LANG.sslState.expiryDate}</strong>
                                             </div>
-                                            <div class="col-sm-7 text-left">
-                                                {$sslStatus->expiryDate->toClientDateFormat()}
+                                            <div class="col-sm-7 text-left" id="ssl-expirydate">
+                                                {if !$sslStatus->needsResync() || $sslStatus->expiryDate}
+                                                    {$sslStatus->expiryDate->toClientDateFormat()}
+                                                {else}
+                                                    {$LANG.loading}
+                                                {/if}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-5 text-right">
                                                 <strong>{$LANG.sslState.issuerName}</strong>
                                             </div>
-                                            <div class="col-sm-7 text-left">
-                                                {$sslStatus->issuerName}
+                                            <div class="col-sm-7 text-left" id="ssl-issuer">
+                                                {if !$sslStatus->needsResync() || $sslStatus->issuerName}
+                                                    {$sslStatus->issuerName}
+                                                {else}
+                                                    {$LANG.loading}
+                                                {/if}
                                             </div>
                                         </div>
                                     {/if}
@@ -272,7 +296,6 @@
                                     {if $domainId}
                                         <a href="clientarea.php?action=domaindetails&id={$domainId}" class="btn btn-default" target="_blank">{$LANG.managedomain}</a>
                                     {/if}
-                                    <input type="button" onclick="popupWindow('whois.php?domain={$domain}','whois',650,420);return false;" value="{$LANG.whoisinfo}" class="btn btn-default" />
                                 </p>
                             {/if}
                             {if $moduleclientarea}
@@ -317,8 +340,13 @@
                             {/foreach}
                         </div>
                     {/if}
+                    {if $metricStats}
+                        <div class="tab-pane fade{if !$domain && !$moduleclientarea && !$configurableoptions} in active{/if}" id="metrics">
+                            {include file="$template/clientareaproductusagebilling.tpl"}
+                        </div>
+                    {/if}
                     {if $customfields}
-                        <div class="tab-pane fade{if !$domain && !$moduleclientarea && !$configurableoptions} in active{/if} text-center" id="additionalinfo">
+                        <div class="tab-pane fade{if !$domain && !$moduleclientarea && !$configurableoptions && !$metricStats} in active{/if} text-center" id="additionalinfo">
                             {foreach from=$customfields item=field}
                                 <div class="row">
                                     <div class="col-sm-5">

@@ -4,7 +4,9 @@
 
     <div class="hero">
         <div class="container">
-            <img src="{$WEB_ROOT}/assets/img/marketconnect/weebly/logo.png">
+            <div class="logo-container">
+                <img src="{$WEB_ROOT}/assets/img/marketconnect/weebly/logo.png">
+            </div>
             <h2>{lang key="store.websiteBuilder.headline"}</h2>
             <h3>{lang key="store.websiteBuilder.tagline"}</h3>
         </div>
@@ -146,13 +148,17 @@
                             <h4 class="pricing-text {$pricing->cycle()}{if !$pricing@first} hidden{/if}">
                                 {$pricing->toFullString()}
                             </h4>
+                        {foreachelse}
+                            {if $inPreview}
+                                -
+                            {/if}
                         {/foreach}
                         <h4 class="pricing-text not-available hidden">-</h4>
                     </div>
-                    <h4>{lang key="store.websiteBuilder.pricing.lite.headline"}</h4>
-                    <h5>{lang key="store.websiteBuilder.pricing.lite.tagline"}</h5>
+                    <h4>{lang key="store.websiteBuilder.pricing.free.headline"}</h4>
+                    <h5>{lang key="store.websiteBuilder.pricing.free.tagline"}</h5>
                     <p>{$litePlan->description}</p>
-                    <form method="post" action="{routePath('store-order')}">
+                    <form method="post" action="{routePath('cart-order')}">
                         <input type="hidden" name="pid" value="{$litePlan->id}">
                         <input type="hidden" name="billingcycle" value="">
                         <button type="submit" class="btn btn-default btn-signup">
@@ -176,6 +182,10 @@
                                         <span class="pricing-text {$pricing->cycle()}{if !$pricing@first} hidden{/if}">
                                             {$pricing->toFullString()}
                                         </span>
+                                    {foreachelse}
+                                        {if $inPreview}
+                                            -
+                                        {/if}
                                     {/foreach}
                                     <span class="pricing-text not-available hidden">
                                         -
@@ -198,7 +208,7 @@
                                     {/foreach}
                                 </ul>
                             </div>
-                            <form method="post" action="{routePath('store-order')}">
+                            <form method="post" action="{routePath('cart-order')}">
                                 <input type="hidden" name="pid" value="{$product->id}">
                                 <input type="hidden" name="billingcycle" value="">
                                 <button type="submit" class="btn btn-primary btn-block btn-signup">{lang key="signup"}</button>

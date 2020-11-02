@@ -4,7 +4,9 @@
 
     <div class="hero">
         <div class="container">
-            <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelock/logo.png">
+            <div class="logo-container">
+                <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelock/logo.png">
+            </div>
             <h2>{lang key="store.sitelock.tagline"}</h2>
         </div>
     </div>
@@ -97,7 +99,7 @@
                                 {/foreach}
                             </ul>
                             <div class="footer">
-                                <form method="post" action="{routePath('store-order')}">
+                                <form method="post" action="{routePath('cart-order')}">
                                     <input type="hidden" name="pid" value="{$plan->id}">
                                     <select name="billingcycle" class="form-control">
                                         {foreach $plan->pricing()->allAvailableCycles() as $cycle}
@@ -304,7 +306,7 @@
                 <div class="price pull-left">
                     Only {if $emergencyPlan->pricing()->best()}{$emergencyPlan->pricing()->best()->toFullString()}{else}-{/if} for 7 days of protection
                 </div>
-                <form method="post" action="{routePath('store-order')}">
+                <form method="post" action="{routePath('cart-order')}">
                     <input type="hidden" name="pid" value="{$emergencyPlan->id}">
                     <button type="submit" class="btn btn-default pull-right">
                         Buy Now
