@@ -54,7 +54,7 @@
                         </button>
                     </div>
                     <div class="col-xs-12 ticket-attachments-message text-muted">
-                        {$LANG.supportticketsallowedextensions}: {$allowedfiletypes}
+                        {$LANG.supportticketsallowedextensions}: {$allowedfiletypes} ({lang key="maxFileSize" fileSize="$uploadMaxFileSize"})
                     </div>
                 </div>
 
@@ -107,8 +107,8 @@
                             {lang key='support.requestor.owner'}
                         {elseif $reply.requestor.type_normalised eq 'authorizeduser'}
                             {lang key='support.requestor.authorizeduser'}
-                        {elseif $reply.requestor.type_normalised eq 'externaluser'}
-                            {lang key='support.requestor.externaluser'}
+                        {elseif $reply.requestor.type_normalised eq 'registereduser'}
+                            {lang key='support.requestor.registereduser'}
                         {elseif $reply.requestor.type_normalised eq 'subaccount'}
                             {lang key='support.requestor.subaccount'}
                         {elseif $reply.requestor.type_normalised eq 'guest'}
@@ -126,6 +126,10 @@
             </div>
             <div class="message">
                 {$reply.message}
+                {if $reply.ipaddress}
+                    <hr>
+                    {lang key='support.ipAddress'}: {$reply.ipaddress}
+                {/if}
                 {if $reply.id && $reply.admin && $ratingenabled}
                     <div class="clearfix">
                         {if $reply.rating}

@@ -4,7 +4,7 @@
 
 <link type="text/css" rel="stylesheet" href="{$BASE_PATH_CSS}/ion.rangeSlider.css" property="stylesheet" />
 <link type="text/css" rel="stylesheet" href="{$BASE_PATH_CSS}/ion.rangeSlider.skinHTML5.css" property="stylesheet" />
-<link href="{$WEB_ROOT}/templates/{$template}/store/css/style.css" rel="stylesheet">
+<link href="{assetPath file='store.css'}" rel="stylesheet">
 
 <div class="landing-page codeguard">
 
@@ -22,7 +22,7 @@
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-landing-page" aria-expanded="false">
-                    <span class="sr-only">{lang key="store.toggleNav"}</span>
+                    <span class="sr-only">{lang key="toggleNav"}</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>

@@ -7,6 +7,10 @@
 
 jQuery(document).ready(function() {
 
+    if (jQuery('#lightbox').length === 0) {
+        lightbox.init();
+    }
+
     // Language chooser popover
     jQuery('#languageChooser').popover({
         container: 'body',
@@ -315,15 +319,16 @@ jQuery(document).ready(function() {
         }
 
         button.attr('disabled', 'disabled').addClass('disabled');
-        button.find('.loading').removeClass('hidden').show().end();
+        jQuery('.loading', button).removeClass('hidden').show().end();
+        jQuery('.login-feedback', form).slideUp();
         WHMCS.http.jqClient.post(
             url,
             form.serialize(),
             function (data) {
-                button.find('.loading').hide().end().removeAttr('disabled');
-                form.find('.login-feedback').html('');
+                jQuery('.loading', button).hide().end().removeAttr('disabled');
+                jQuery('.login-feedback', form).html('');
                 if (data.error) {
-                    form.find('.login-feedback').html(data.error).hide().removeClass('hidden').slideDown();
+                    jQuery('.login-feedback', form).hide().html(data.error).slideDown();
                 }
                 if (data.redirect !== undefined && data.redirect.substr(0, 7) === 'window|') {
                     window.open(data.redirect.substr(7), '_blank');
@@ -332,7 +337,7 @@ jQuery(document).ready(function() {
             'json'
         ).always(function() {
             button.removeAttr('disabled').removeClass('disabled');
-            button.find('.loading').hide().end();
+            jQuery('.loading', button).hide().end();
         });
     });
     jQuery('.btn-sidebar-form-submit').on('click', function(e) {
@@ -451,9 +456,9 @@ jQuery(document).ready(function() {
                     parsedContent;
 
                 jQuery.ajax({
-                    url: 'clientarea.php',
+                    url: WHMCS.utils.getRouteUrl('/clientarea/message/preview'),
                     async: false,
-                    data: {token: csrfToken, action: 'parseMarkdown', content: originalContent},
+                    data: {token: csrfToken, content: originalContent},
                     dataType: 'json',
                     success: function (data) {
                         parsedContent = data;
@@ -520,10 +525,25 @@ jQuery(document).ready(function() {
         e.preventDefault();
         WHMCS.http.jqClient.post(jQuery(this).data('uri'),
             {
-                'token': csrfToken,
+                'token': csrfToken
             });
-        jQuery('.email-verification').hide();
+        jQuery('.verification-banner.email-verification').hide();
     });
+
+    jQuery('#btnUserValidationClose').click(function(e) {
+        e.preventDefault();
+        WHMCS.http.jqClient.post(jQuery(this).data('uri'),
+            {
+                'token': csrfToken
+            });
+        jQuery('.verification-banner.user-validation').hide();
+    });
+
+    var ssoDropdown = jQuery('#servicesPanel').find('.list-group');
+    if (parseInt(ssoDropdown.css('height'), 10) < parseInt(ssoDropdown.css('max-height'), 10)) {
+        ssoDropdown.css('overflow', 'unset');
+    }
+
 
     /**
      * Parse the content to populate the markdown editor footer.
@@ -592,7 +612,7 @@ jQuery(document).ready(function() {
 
     jQuery('#frmPayment').on('submit', function() {
         var btn = jQuery('#btnSubmit');
-            btn.find('span').toggleClass('hidden');
+            btn.find('span').toggle();
             btn.prop('disabled', true).addClass('disabled');
     });
 
@@ -620,17 +640,17 @@ jQuery(document).ready(function() {
 
         var noTlds = jQuery('.tld-row.no-tlds');
 
-        if (jQuery(this).hasClass('label-success')) {
-            jQuery(this).removeClass('label-success');
+        if (jQuery(this).hasClass('badge-success')) {
+            jQuery(this).removeClass('badge-success');
         } else {
-            jQuery(this).addClass('label-success');
+            jQuery(this).addClass('badge-success');
         }
         if (noTlds.is(':visible')) {
             noTlds.hide();
         }
 
         jQuery('.tld-row').removeClass('filtered-row');
-        jQuery('.tld-filters a.label-success').each(function(index) {
+        jQuery('.tld-filters a.badge-success').each(function(index) {
             var filterValue = jQuery(this).data('category');
             jQuery('.tld-row[data-category*="' + filterValue + '"]').addClass('filtered-row');
         });
@@ -652,9 +672,6 @@ jQuery(document).ready(function() {
 
     // DataTable data-driven auto object registration
     WHMCS.ui.dataTable.register();
-
-    // Bootstrap Confirmation popup auto object registration
-    WHMCS.ui.confirmation.register();
 
     WHMCS.ui.jsonForm.initAll();
 
@@ -783,6 +800,84 @@ jQuery(document).ready(function() {
         if (state) {
             descContainer.removeClass('disabled').prop('disabled', false);
         }
+    });
+
+    jQuery(document).on('click', '#btnConfirmModalConfirmBtn', function () {
+        var confirmButton = jQuery(this),
+            confirmationModal = confirmButton.closest('div.modal'),
+            targetUrl = confirmButton.data('target-url'),
+            dataTable = confirmButton.closest('table.dataTable[data-on-draw-rebind-confirmation-modal="true"]');
+        WHMCS.http.jqClient.jsonPost(
+            {
+                url: targetUrl,
+                data: {
+                    token: csrfToken
+                },
+                success: function(data) {
+                    if (data.status === 'success' || data.status === 'okay') {
+                        if (dataTable.length > 0) {
+                            dataTable.DataTable().ajax.reload();
+                        }
+                    }
+                }
+            }
+        );
+        confirmationModal.modal('toggle');
+    });
+    jQuery('input[name="approval_method"]').on('ifChecked', function(event) {
+        var fileMethod = $('#containerApprovalMethodFile'),
+            emailMethod = $('#containerApprovalMethodEmail'),
+            dnsMethod = $('#containerApprovalMethodDns');
+        if (jQuery(this).attr('value') == 'file') {
+            fileMethod.show();
+            dnsMethod.hide();
+            emailMethod.hide();
+        } else if (jQuery(this).attr('value') == 'dns-txt-token') {
+            dnsMethod.show();
+            fileMethod.hide();
+            emailMethod.hide();
+        } else {
+            fileMethod.hide();
+            dnsMethod.hide();
+            emailMethod.show();
+        }
+    });
+
+    (function () {
+        jQuery('.div-service-status').css(
+            'width',
+            (jQuery('.div-service-status .label-placeholder').outerWidth() + 5)
+        );
+        jQuery('div[menuitemname="Active Products/Services"] .list-group-item:visible')
+            .last()
+            .css('border-bottom', '1px solid #ddd');
+    }());
+    jQuery('div[menuitemname="Active Products/Services"] .btn-view-more').on('click', function(event) {
+        var hiddenItems = jQuery('div[menuitemname="Active Products/Services"] .list-group-item:hidden');
+        var itemAmount = 8;
+        event.preventDefault();
+        hiddenItems.slice(0,itemAmount).css('display', 'block');
+        if ((hiddenItems.length - itemAmount) <= 0) {
+            jQuery(event.target).addClass('disabled').attr("aria-disabled", true);
+        }
+        jQuery('div[menuitemname="Active Products/Services"] .list-group-item:visible')
+            .css('border-bottom', '')
+            .last()
+            .css('border-bottom', '1px solid #ddd');
+    })
+    jQuery('div[menuitemname="Service Details Actions"] a[data-identifier][data-serviceid][data-active="1"]').on('click', function(event) {
+        return customActionAjaxCall(event, jQuery(event.target))
+    });
+    jQuery('.div-service-item').on('click', function (event) {
+        var element = jQuery(event.target);
+        if (element.is('.dropdown-toggle, .dropdown-menu, .caret')) {
+            return true;
+        }
+        if (element.hasClass('btn-custom-action')) {
+            return customActionAjaxCall(event, element);
+        }
+        window.location.href = element.closest('.div-service-item').data('href');
+        return false;
     });
 });
 
@@ -1022,13 +1117,17 @@ function hideNewBillingAddressFields() {
  * Show new credit card input fields.
  */
 function showNewCardInputFields() {
-    if (jQuery(".cc-details").hasClass("hidden")) {
-        jQuery(".cc-details").hide().removeClass("hidden");
-    }
-    jQuery(".cc-details").slideDown();
+    var ccDetails = jQuery('.cc-details'),
+        ccNumber = jQuery('#inputCardNumber'),
+        billAddress = jQuery('#billingAddressChoice');
 
-    jQuery("#billingAddressChoice")
-        .slideDown()
+    if (ccDetails.hasClass("hidden")) {
+        ccDetails.hide().removeClass("hidden");
+    }
+    ccDetails.slideDown();
+    ccNumber.focus();
+
+    billAddress.slideDown()
         .find('input[name="billingcontact"]')
         .first()
         .iCheck('check');
@@ -1055,20 +1154,14 @@ function showNewAccountInputFields() {
  */
 function hideNewCardInputFields() {
     hideNewBillingAddressFields();
-
     jQuery(".cc-details").slideUp();
     jQuery("#billingAddressChoice").slideUp();
-
-    var selectedCcInfo = jQuery('input[name="ccinfo"]:checked');
-
-    var selectedCcBillingContactId = jQuery(selectedCcInfo).data('billing-contact-id');
-
-    var selectedBillingContactData = jQuery('.billing-contact-info[data-billing-contact-id="' + selectedCcBillingContactId + '"]');
-
-    if (selectedBillingContactData.length) {
-        jQuery('.billing-contact-info').hide();
-        jQuery(selectedBillingContactData).show();
+    var contactId = jQuery('input[name="ccinfo"]:checked').data('billing-contact-id');
+    if (contactId != undefined) {
+        jQuery('#billingAddressChoice label.billing-contact-' + contactId)
+            .iCheck('check');
     }
+    jQuery('#inputCardCvv').focus();
 }
 
 /**
@@ -1150,4 +1243,83 @@ function getSslAttribute(element, attribute) {
         return element.data(attribute);
     }
     return element.parent('td').data(attribute);
+}
+
+function openValidationSubmitModal(caller)
+{
+    var validationSubmitModal = jQuery('#validationSubmitModal');
+    validationSubmitModal.find('.modal-body iframe').attr('src', caller.dataset.url);
+    validationSubmitModal.modal('show');
+}
+
+function completeValidationComClientWorkflow()
+{
+    var submitDocsRequestBanner = jQuery('.user-validation'),
+        secondarySidebarStatus = jQuery('.validation-status-label'),
+        submitDiv = jQuery('.validation-submit-div'),
+        redirectUser = true;
+
+    $('#validationSubmitModal').modal('hide');
+    if (submitDocsRequestBanner.length !== 0) {
+        submitDocsRequestBanner.slideUp();
+        redirectUser = false;
+    }
+    if (secondarySidebarStatus.length !== 0) {
+        var submitString = submitDiv.find('a').data('submitted-string');
+        secondarySidebarStatus.text(submitString).removeClass('label-default').addClass('label-warning');
+        submitDiv.hide();
+        redirectUser = false;
+    }
+
+    if (redirectUser) {
+        window.location.href = WHMCS.utils.autoDetermineBaseUrl();
+    }
+    return false;
+}
+
+/**
+ * Perform the AjaxCall for a CustomAction.
+ *
+ * @param event
+ * @param element
+ * @returns {boolean}
+ */
+function customActionAjaxCall(event, element) {
+    var loadingIcon = jQuery('.loading', element);
+    var standardIcon = jQuery('.sidebar-menu-item-icon', element);
+
+    event.stopPropagation();
+    if (!element.data('active')) {
+        return false;
+    }
+    element.attr('disabled', 'disabled').addClass('disabled');
+    loadingIcon.show();
+    standardIcon.hide();
+    WHMCS.http.jqClient.jsonPost({
+        url: WHMCS.utils.getRouteUrl(
+            '/clientarea/service/' + element.data('serviceid') + '/custom-action/' + element.data('identifier')
+        ),
+        data: {
+            'token': csrfToken
+        },
+        success: function(data) {
+            if (data.success) {
+                window.open(data.redirectTo);
+            } else {
+                window.open('clientarea.php?action=productdetails&id=' + element.data('serviceid') + '&customaction_error=1');
+            }
+        },
+        fail: function () {
+            window.open('clientarea.php?action=productdetails&id=' + element.data('serviceid') + '&customaction_ajax_error=1');
+        },
+        always: function() {
+            loadingIcon.hide();
+            standardIcon.show();
+            element.removeAttr('disabled').removeClass('disabled');
+            if (element.hasClass('dropdown-item')) {
+                element.closest('.dropdown-menu').removeClass('show');
+            }
+        },
+    });
+    return true;
 }

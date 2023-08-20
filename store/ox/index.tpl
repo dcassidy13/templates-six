@@ -1,4 +1,4 @@
-<link href="{$WEB_ROOT}/templates/{$template}/store/css/style.css" rel="stylesheet">
+<link href="{assetPath file='store.css'}" rel="stylesheet">
 
 <div class="landing-page ox">
     <div class="header">
@@ -151,6 +151,8 @@
                             <p>{lang key="store.ox.faq1.answer"}</p>
                             <p class="question">{lang key="store.ox.faq2.question"}</p>
                             <p>{lang key="store.ox.faq2.answer"}</p>
+                            <p class="question">{lang key="store.ox.faq9.question"}</p>
+                            <p>{lang key="store.ox.faq9.answer"}</p>
                             <p class="question">{lang key="store.ox.faq3.question"}</p>
                             <p>{lang key="store.ox.faq3.answer"}</p>
                             <p class="question">{lang key="store.ox.faq4.question"}</p>

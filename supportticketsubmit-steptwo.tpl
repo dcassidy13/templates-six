@@ -37,7 +37,7 @@
                 <select name="relatedservice" id="inputRelatedService" class="form-control">
                     <option value="">{$LANG.none}</option>
                     {foreach from=$relatedservices item=relatedservice}
-                        <option value="{$relatedservice.id}">
+                        <option value="{$relatedservice.id}"{if $relatedservice.id eq $selectedservice} selected="selected"{/if}>
                             {$relatedservice.name} ({$relatedservice.status})
                         </option>
                     {/foreach}
@@ -78,7 +78,7 @@
             </button>
         </div>
         <div class="col-xs-12 ticket-attachments-message text-muted">
-            {$LANG.supportticketsallowedextensions}: {$allowedfiletypes}
+            {$LANG.supportticketsallowedextensions}: {$allowedfiletypes} ({lang key="maxFileSize" fileSize="$uploadMaxFileSize"})
         </div>
     </div>
 
@@ -93,7 +93,7 @@
     </div>
 
     <p class="text-center">
-        <input type="submit" id="openTicketSubmit" value="{$LANG.supportticketsticketsubmit}" class="btn btn-primary{$captcha->getButtonClass($captchaForm)}" />
+        <input type="submit" id="openTicketSubmit" value="{$LANG.supportticketsticketsubmit}" class="btn btn-primary disable-on-click{$captcha->getButtonClass($captchaForm)}" />
         <a href="supporttickets.php" class="btn btn-default">{$LANG.cancel}</a>
     </p>
 

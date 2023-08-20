@@ -1,4 +1,4 @@
-<link href="{$WEB_ROOT}/templates/{$template}/store/css/style.css" rel="stylesheet">
+<link href="{assetPath file='store.css'}" rel="stylesheet">
 
 <div class="landing-page mail-services">
 
@@ -13,7 +13,7 @@
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-landing-page" aria-expanded="false">
-            <span class="sr-only">{lang key="store.toggleNav"}</span>
+            <span class="sr-only">{lang key="toggleNav"}</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -109,10 +109,10 @@
                     {/if}
                 </div>
             {elseif $inPreview}
-                <div class="text-center lead preview-text">Email service products you activate will be displayed here</div>
+                <div class="text-center lead preview-text">{lang key="store.emailServices.preview"}</div>
             {/if}
             <div class="powered-by">
-                Powered by <img src="{$WEB_ROOT}/assets/img/marketconnect/spamexperts/logo_white.png">
+                {lang key='store.poweredBy' service=''}<img src="{$WEB_ROOT}/assets/img/marketconnect/spamexperts/logo_white.png">
             </div>
         </div>
     </div>
@@ -136,7 +136,7 @@
                             <a href="#outgoing" aria-controls="outgoing" role="tab" data-toggle="tab">{lang key="store.emailServices.outgoing.title"}</a>
                         </li>
                     {/if}
-                    {if $products.incomingarchiving || $products.outgoingarchiving || $inPreview}
+                    {if $products.incomingarchiving || $products.outgoingarchiving || $products.incomingoutgoingarchiving || $inPreview}
                         <li role="presentation">
                             <a href="#archiving" aria-controls="archiving" role="tab" data-toggle="tab">{lang key="store.emailServices.archiving.title"}</a>
                         </li>
@@ -398,4 +398,64 @@
 
 </div>
 
-<script src="{$WEB_ROOT}/templates/{$template}/store/spamexperts/master.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#inputDomainChooser').multiselect({
+            buttonWidth: '250px',
+            dropRight: true,
+            nonSelectedText: 'Choose domain(s)'
+        });
+
+        $('.landing-page.mail-services .get-started .choose-product button').click(function(e) {
+            var product = $(this).data('product');
+            $('.landing-page.mail-services .get-started .choose-product button').removeClass('active');
+            $(this).addClass('active');
+            $('.landing-page.mail-services .get-started .additional-options .option').hide();
+            $('.landing-page.mail-services .get-started .additional-options .options-' + product).show();
+            $('.landing-page.mail-services .get-started .price').hide();
+            $('.landing-page.mail-services .get-started .price-' + product).show();
+            $('#productKey').val('spamexperts_' + product);
+        });
+
+        $('.landing-page.mail-services .get-started .additional-options input[type="checkbox"]').click(function(e) {
+            if ($(this).is(":checked")) {
+                $('.landing-page.mail-services .get-started .additional-options input[type="checkbox"]').not($(this)).prop('checked', false);
+                $('.landing-page.mail-services .get-started .price').hide();
+                $('.landing-page.mail-services .get-started .price-' + $(this).val()).show();
+                $('#productKey').val('spamexperts_' + $(this).val());
+            } else {
+                var product = $('.landing-page.mail-services .get-started .choose-product button.active').data('product');
+                $('.landing-page.mail-services .get-started .price').hide();
+                $('.landing-page.mail-services .get-started .price-' + product).show();
+                $('#productKey').val('spamexperts_' + product);
+            }
+        });
+
+        $('.btn-learn-more').click(function(e) {
+            e.preventDefault();
+            $('#howitworks a[href="#' + $(this).data('target') + '"]').tab('show');
+            smoothScroll('#howitworks');
+        });
+
+        $('.btn-buy').click(function(e) {
+            e.preventDefault();
+            var target = $(this).data('target'),
+                pricing = $('#pricing');
+            if (target === 'incomingoutgoingarchiving') {
+                if (pricing.find('button[data-product="incoming"]').length) {
+                    pricing.find('button[data-product="incoming"]').click();
+                } else {
+                    pricing.find('button[data-product="outgoing"]').click();
+                }
+                var option = $('input[name="options"][value="incomingoutgoingarchiving"]').first();
+                if (option.is(':checked')) {
+                    option.click();
+                }
+                option.click();
+            } else {
+                pricing.find('button[data-product="' + $(this).data('target') + '"]').click();
+            }
+            smoothScroll('#pricing');
+        });
+    });
+</script>

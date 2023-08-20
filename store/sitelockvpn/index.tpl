@@ -1,4 +1,4 @@
-<link href="{$WEB_ROOT}/templates/{$template}/store/css/style.css" rel="stylesheet">
+<link href="{assetPath file='store.css'}" rel="stylesheet">
 
 <div class="landing-page sitelockvpn">
 
@@ -75,7 +75,6 @@
                 <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelockvpn/logo-apple.png">
                 <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelockvpn/logo-windows.png">
                 <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelockvpn/logo-android.png">
-                <img src="{$WEB_ROOT}/assets/img/marketconnect/sitelockvpn/logo-linux.png">
             </div>
         </div>
     </div>
